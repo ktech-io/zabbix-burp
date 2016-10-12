@@ -38,9 +38,5 @@ Zabbix
 
 Dependency
 ==========
+Everything works out of the box on Debian 8 and RedHat 6-7
 
-On RedHat6, these packages are required:
-- python-simplejson
-- python-dateutil
-
-Everything works out of the box on Debian 8 and RedHat 7
