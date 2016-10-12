@@ -128,28 +128,32 @@ def parse_burp2_json(json_object):
 
 def get_burp_version():
     """Get the burp version"""
-    burp_command = ("/usr/sbin/burp", "-v")
-    process = subprocess.Popen(burp_command, stdout=subprocess.PIPE)
-    burp_version = process.communicate()[0]
+
+    try:
+        burp_command = ("/usr/sbin/burp", "-v")
+        process = subprocess.Popen(burp_command, stdout=subprocess.PIPE)
+        burp_version = process.communicate()[0]
+    except OSError:
+        raise BaseException("burp binary (/usr/sbin/burp) could not be found")
 
     if 'burp-1' in burp_version:
         return 1
     elif 'burp-2' in burp_version:
         return 2
-    raise "Unknown burp version '{0}'".format(burp_version)
+    raise BaseException("Unknown burp version '{0}'".format(burp_version))
 
 def main():
     """Main function"""
-    burp_version = get_burp_version()
 
     try:
+        burp_version = get_burp_version()
         if burp_version == 1:
             timestamp = get_burp1_latest_timestamp()
         elif burp_version == 2:
             timestamp = get_burp2_latest_timestamp()
         print timestamp
-    except BaseException:
-        sys.stderr.write("Unexpected error: {0}".format(sys.exc_info()[0]))
+    except BaseException as error:
+        sys.stderr.write("Unexpected error: {0}\n".format(error))
         sys.exit(1)
 
 if __name__ == "__main__":
