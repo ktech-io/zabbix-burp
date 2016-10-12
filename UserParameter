@@ -1,0 +1,2 @@
+#== Burp ==
+UserParameter=burp.latest_backup, sudo /usr/local/bin/burp_latest_backup.py

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>3.0</version>
+    <date>2016-10-12T17:37:49Z</date>
+    <groups>
+        <group>
+            <name>Template - Software</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Burp-client</template>
+            <name>Burp-client</name>
+            <description/>
+            <groups>
+                <group>
+                    <name>Template - Software</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Burp-client</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Latest backup</name>
+                    <type>7</type>
+                    <snmp_community/>
+                    <multiplier>0</multiplier>
+                    <snmp_oid/>
+                    <key>burp.latest_backup</key>
+                    <delay>1800</delay>
+                    <history>15</history>
+                    <trends>365</trends>
+                    <status>0</status>
+                    <value_type>3</value_type>
+                    <allowed_hosts/>
+                    <units/>
+                    <delta>0</delta>
+                    <snmpv3_contextname/>
+                    <snmpv3_securityname/>
+                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
+                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
+                    <snmpv3_authpassphrase/>
+                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
+                    <snmpv3_privpassphrase/>
+                    <formula>1</formula>
+                    <delay_flex/>
+                    <params/>
+                    <ipmi_sensor/>
+                    <data_type>0</data_type>
+                    <authtype>0</authtype>
+                    <username/>
+                    <password/>
+                    <publickey/>
+                    <privatekey/>
+                    <port/>
+                    <description/>
+                    <inventory_link>0</inventory_link>
+                    <applications>
+                        <application>
+                            <name>Burp-client</name>
+                        </application>
+                    </applications>
+                    <valuemap/>
+                    <logtimefmt/>
+                </item>
+            </items>
+            <discovery_rules/>
+            <macros/>
+            <templates/>
+            <screens/>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>{Burp-client:burp.latest_backup.last()}=0</expression>
+            <name>Broken monitoring of backup on {HOSTNAME}</name>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description/>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Burp-client:burp.latest_backup.fuzzytime(93600)}=0</expression>
+            <name>No new backup for the last 26 hours on {HOSTNAME}</name>
+            <url/>
+            <status>0</status>
+            <priority>3</priority>
+            <description/>
+            <type>0</type>
+            <dependencies>
+                <dependency>
+                    <name>Broken monitoring of backup on {HOSTNAME}</name>
+                    <expression>{Burp-client:burp.latest_backup.last()}=0</expression>
+                </dependency>
+            </dependencies>
+        </trigger>
+        <trigger>
+            <expression>{Burp-client:burp.latest_backup.fuzzytime(180000)}=0</expression>
+            <name>No new backup for the last 50 hours on {HOSTNAME}</name>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description/>
+            <type>0</type>
+            <dependencies>
+                <dependency>
+                    <name>Broken monitoring of backup on {HOSTNAME}</name>
+                    <expression>{Burp-client:burp.latest_backup.last()}=0</expression>
+                </dependency>
+            </dependencies>
+        </trigger>
+    </triggers>
+</zabbix_export>
