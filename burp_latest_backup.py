@@ -12,6 +12,39 @@ import socket
 import os
 import fcntl
 
+def main():
+    """Main function"""
+
+    try:
+        burp_version = get_burp_version()
+        if burp_version == 1:
+            timestamp = get_burp1_latest_timestamp()
+        elif burp_version == 2:
+            timestamp = get_burp2_latest_timestamp()
+        print timestamp
+    except BaseException as error:
+        sys.stderr.write("Unexpected error: {0}\n".format(error))
+        sys.exit(1)
+
+###################
+# Generic functions
+
+def get_burp_version():
+    """Get the burp version"""
+
+    try:
+        burp_command = ("/usr/sbin/burp", "-v")
+        process = subprocess.Popen(burp_command, stdout=subprocess.PIPE)
+        burp_version = process.communicate()[0]
+    except OSError:
+        raise BaseException("burp binary (/usr/sbin/burp) could not be found")
+
+    if 'burp-1' in burp_version:
+        return 1
+    elif 'burp-2' in burp_version:
+        return 2
+    raise BaseException("Unknown burp version '{0}'".format(burp_version))
+
 def read_process(process, eol_string):
     """Read the process until there is nothig to read anymore"""
     output = ""
@@ -49,6 +82,9 @@ def write_cache(timestamp):
     cache_file.write(timestamp)
     cache_file.close()
 
+###########################
+# Burp1 specific functions
+
 def get_burp1_latest_timestamp():
     """Main function for Burp version 1"""
     json_output = get_burp1_json()
@@ -82,6 +118,9 @@ def parse_burp1_json(json_object):
     latest_burp_datetime_epoch = latest_burp_datetime.strftime('%s')
 
     return latest_burp_datetime_epoch
+
+###########################
+# Burp2 specific functions
 
 def get_burp2_latest_timestamp():
     """Main function for Burp version 2"""
@@ -126,35 +165,6 @@ def parse_burp2_json(json_object):
 
     return latest_backup
 
-def get_burp_version():
-    """Get the burp version"""
-
-    try:
-        burp_command = ("/usr/sbin/burp", "-v")
-        process = subprocess.Popen(burp_command, stdout=subprocess.PIPE)
-        burp_version = process.communicate()[0]
-    except OSError:
-        raise BaseException("burp binary (/usr/sbin/burp) could not be found")
-
-    if 'burp-1' in burp_version:
-        return 1
-    elif 'burp-2' in burp_version:
-        return 2
-    raise BaseException("Unknown burp version '{0}'".format(burp_version))
-
-def main():
-    """Main function"""
-
-    try:
-        burp_version = get_burp_version()
-        if burp_version == 1:
-            timestamp = get_burp1_latest_timestamp()
-        elif burp_version == 2:
-            timestamp = get_burp2_latest_timestamp()
-        print timestamp
-    except BaseException as error:
-        sys.stderr.write("Unexpected error: {0}\n".format(error))
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()
