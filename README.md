@@ -34,3 +34,13 @@ Zabbix
 
 - import the template (`zbx_burp_template.xml`) into the zabbix GUI
 - Add the UserParameter in the zabbix config directory
+
+
+Dependency
+==========
+
+On RedHat6, these packages are required:
+- python-simplejson
+- python-dateutil
+
+Everything works out of the box on Debian 8 and RedHat 7
