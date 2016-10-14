@@ -45,20 +45,18 @@ def get_burp_version():
         return 2
     raise BaseException("Unknown burp version '{0}'".format(burp_version))
 
-def read_process(process, eol_string):
+def read_process(process, eol_regex, buffer_size=16000):
     """Read the process until there is nothig to read anymore"""
     output = ""
-    line = ""
     fcntl.fcntl(process.stdout.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
-    while True:
+    while process.poll() is None:
         try:
-            line = process.stdout.readline()
-            output += line
-            if eol_string == line:
+            read_bytes = process.stdout.read(buffer_size)
+            output += read_bytes
+            if re.search(eol_regex, output):
                 break
         except IOError:
-            if process.poll() != 0 and process.poll() != None:
-                break
+            pass
     return output
 
 def read_cache():
@@ -137,13 +135,17 @@ def get_burp2_json():
 
     # Make sure output is clean
     process = subprocess.Popen(burp_command, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    read_process(process, "{ \"logline\": \"in monitor\" }\n")
+    eol_regex = re.compile(r'\n\{ "logline": "in monitor" \}\n')
+    read_process(process, eol_regex)
+
 
     fqdn = socket.getfqdn()
     burp_request = "c:{0}\n".format(fqdn)
     process.stdin.write(burp_request)
     process.stdin.flush()
-    burp_json_output = read_process(process, "}\n")
+    eol_regex = re.compile(r'\n\}\n')
+    burp_json_output = read_process(process, eol_regex)
+
     process.terminate()
     try:
         data = json.loads(burp_json_output)
