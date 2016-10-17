@@ -126,7 +126,10 @@ def get_burp2_latest_timestamp():
     latest_timestamp = float(parse_burp2_json(json_output))
     # The burp monitor does not return the epoch format in UTC, but in server localtime.
     # So convert it so we output it in UTC
-    latest_timestamp_utc = datetime.datetime.utcfromtimestamp(latest_timestamp).strftime('%s')
+    if latest_timestamp != 0:
+        latest_timestamp_utc = datetime.datetime.utcfromtimestamp(latest_timestamp).strftime('%s')
+    else:
+        latest_timestamp_utc = 0
     return latest_timestamp_utc
 
 def get_burp2_json():
