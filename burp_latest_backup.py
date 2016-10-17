@@ -11,6 +11,7 @@ import subprocess
 import socket
 import os
 import fcntl
+import time
 
 def main():
     """Main function"""
@@ -45,18 +46,39 @@ def get_burp_version():
         return 2
     raise BaseException("Unknown burp version '{0}'".format(burp_version))
 
-def read_process(process, eol_regex, buffer_size=16000):
-    """Read the process until there is nothig to read anymore"""
+def flush_buffer(buf, buffer_size=16000):
+    """Read the buffer until there is nothig to read anymore"""
+    output = ''
+    read_bytes = buf.read(buffer_size)
+    while read_bytes != '':
+        output += read_bytes
+        try:
+            read_bytes = buf.read(buffer_size)
+        except IOError:
+            read_bytes = ''
+    return output
+
+def read_process(process, eol_regex, buffer_size=16000, timeout=60):
+    """Read the process output and exit when regex is found"""
+    error_sleep_time = 0.1
+    max_error = timeout / error_sleep_time
+    error_count = 0
     output = ""
     fcntl.fcntl(process.stdout.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
     while process.poll() is None:
         try:
-            read_bytes = process.stdout.read(buffer_size)
-            output += read_bytes
+            output += flush_buffer(process.stdout, buffer_size)
             if re.search(eol_regex, output):
                 break
         except IOError:
-            pass
+            time.sleep(error_sleep_time)
+            error_count = error_count + 1
+            if error_count >= max_error:
+                break
+    try:
+        output += flush_buffer(process.stdout, buffer_size)
+    except IOError:
+        pass
     return output
 
 def read_cache():
